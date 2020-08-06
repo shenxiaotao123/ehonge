@@ -1,0 +1,6 @@
+/* 顶部下载APP提示 */
+.NoticeBarWrap .van-notice-bar { height: 50px !important;}
+.NoticeBar{ padding: 2px 0 0 0;}
+.NoticeBar:after { content:"."; display:block; height:0; clear:both; visibility:hidden;}
+.NoticeBar>img { margin-right: 10px;}
+.NoticeBar .fl>p{ line-height: 1.4;}
