@@ -1,26 +1,19 @@
 <template>
 	<div>
-		<NoticeApp></NoticeApp>
-		<van-tabs v-model="activeName">
-		  <van-tab title="匠人传承" name="tab1">
+		<van-tabs v-model="activeName">	
+		  <van-tab :title="vClass.name" :id="vClass.id" name="tab1" v-for="vClass of videoClass">
 			<div class="videoList">
 			  <van-row gutter="10">
-			    <van-col span="12" v-for="vid of videolist.video">
+			    <van-col span="12" v-for="vid of videolist">
 					<div class="video pos-rlt" @click="$router.push({path:'/play',query:{id:vid.id}})">
-						<van-image width="100%" height="175" radius="3px" :src="vid.cover_img" />
+						<van-image width="100%" height="175" radius="3px" :src="vid.video.cover_img" />
 						<div class="videoTitle">
-							<p>{{vid.title}}</p>
+							<p>{{vid.video.title}}</p>
 						</div>
 					</div>
 				</van-col>
 			  </van-row>
 			</div>
-		  </van-tab>
-		  <van-tab title="大学生作品" name="tab2">
-			  大学生作品
-		  </van-tab>
-		  <van-tab title="国学讲坛" name="tab3">
-			  国学讲坛
 		  </van-tab>
 		</van-tabs>
 		
@@ -33,7 +26,6 @@
 </template>
 
 <script>
-import NoticeApp from '@/public/NoticeApp' //顶部通知栏APP下载引导
 import Vue from 'vue';
 import { Tab, Tabs, Tabbar, TabbarItem, NoticeBar, Button, Col, Row, } from 'vant';
 import { Image as VanImage } from 'vant';
@@ -53,16 +45,21 @@ export default {
 		return {
 			activeName: 'tab1', //Tab默认当前页
 			active: 'home', //底部标签栏默认当前
-			videolist:[]
+			videolist:[],
+			videoClass:[
+				{
+				id:{},
+				}
+			]
 		}
-	},
-	components: {
-		 NoticeApp
 	},
 	mounted() {
 		this.$ajax.get('info/video').then((response) => { //视频列表
-		    this.videolist = response.data.data
-			console.log(response.data.data);
+		    this.videolist = response.data.data.data
+		});	
+		this.$ajax.get('info/class').then((response) => { //视频分类
+		    this.videoClass = response.data.data
+			console.log(response.data.data[0].name);
 		});	
 	}
 }

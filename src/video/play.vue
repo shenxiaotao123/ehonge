@@ -1,17 +1,15 @@
 <template>
 	<div>
-		<NoticeApp></NoticeApp>
-		<van-nav-bar title="标题" left-text="返回" left-arrow @click-left="onClickLeft" />
-		<div class="test_two_box">
-			<video id="myVideo" class="video-js vjs-fluid">
-				<source src="//vjs.zencdn.net/v/oceans.mp4" type="video/mp4">
-			</video>
-		</div>
+		<van-nav-bar :title="videoDetail.title" left-text="返回" left-arrow @click-left="onClickLeft" />		
+		<template>
+		   <video-player class="video-player vjs-custom-skin" ref="videoPlayer" :playsinline="true" :options="playerOptions"></video-player>
+     	</template>
+				
 		<div class="videoIofn bg-ff wrapper-sm">
-			<div class="videoTitle">短视频标题短视频标题短视频标题短视频标题短视频标题短视频标题</div>
+			<div class="videoTitle">{{videoDetail.title}}</div>
 			<div class="videoOperating">
 				<div class="fr"><van-button size="small" color="#f24646">+关注</van-button></div>
-				<div class="fl"><van-image round width="32px" height="32px" src="https://img.yzcdn.cn/vant/cat.jpeg" class="v-middle" /><span class="m-l-sm v-middle">用户名</span></div>
+				<div class="fl"><van-image round width="32px" height="32px" :src="videoUser.user_image" class="v-middle" /><span class="m-l-sm v-middle">{{videoUser.user_name}}</span></div>
 			</div>
 		</div>
 		
@@ -30,30 +28,30 @@
 		</div>
 		
 		<van-goods-action>
-		  <van-cell-group :style="{ flex: '1'}">
-		    <van-field @click="showPopup" placeholder="想勾搭,先评论" />
-		  </van-cell-group>
-		  <van-goods-action-icon icon="like-o" text="点赞" badge="12" />
+		  <van-field @click="showPopup" placeholder="想勾搭,先评论" :style="{ flex: '1'}" />
+		  <van-goods-action-icon icon="like-o" text="点赞" v-if="videoCon.like_num == '0'" @click="showPopup" />
+		  <van-goods-action-icon icon="like-o" text="点赞" v-else-if="videoCon.like_num != '0'" :badge="videoCon.like_num" @click="showPopup" />
 		</van-goods-action>
 		
 		<!-- 下载APP弹出框 -->
 		<van-popup v-model="show" closeable round position="bottom" :style="{ height: '50%' }" class="text-c">
-			<img class="m-t-xxl" width="100" height="100" src="@/assets/imges/largeLogo.png" alt="">
-			<p class="size14 m-t">下载易空间APP</p>
-			<p class="size14">享受更好的评论体验</p>
-			<div class="m-t-lg">
-				<van-button round type="info" color="#f24646" url="">立即下载</van-button>
-			</div>
+			<downloadApp v-bind:downloadAppText="downloadAppText"></downloadApp>
 		</van-popup>
 		
 	</div>
 </template>
 
 <script>
-import Video from 'video.js' //视频控件
-import 'video.js/dist/video-js.css'
-Vue.prototype.$video = Video
-import NoticeApp from '@/public/NoticeApp' //顶部通知栏APP下载引导
+// import Video from 'video.js' //视频控件
+// import 'video.js/dist/video-js.css'
+// Vue.prototype.$video = Video
+
+import VideoPlayer from 'vue-video-player'
+require('video.js/dist/video-js.css')
+require('vue-video-player/src/custom-theme.css')
+Vue.use(VideoPlayer)
+
+import downloadApp from '@/public/downloadApp' //弹出框APP下载
 import Vue from 'vue';
 import { NavBar, Field, Icon, GoodsAction, GoodsActionIcon, GoodsActionButton, Popup, Button } from 'vant';
 Vue.use(NavBar);
@@ -73,37 +71,52 @@ export default {
 	data () {
 		return {
 			show: false,
+			videoCon:[],
+			videoDetail:[],
+			videoUser:[],
+			downloadAppText:'享受更好的评论体验',
+			playerOptions : {
+			        playbackRates: [0.7, 1.0, 1.5, 2.0], //播放速度
+			        autoplay: false, //如果true,浏览器准备好时开始回放。
+			        muted: false, // 默认情况下将会消除任何音频。
+			        loop: false, // 导致视频一结束就重新开始。
+			        preload: 'auto', // 建议浏览器在<video>加载元素后是否应该开始下载视频数据。auto浏览器选择最佳行为,立即开始加载视频（如果浏览器支持）
+			        language: 'zh-CN',
+			        aspectRatio: '16:9', // 将播放器置于流畅模式，并在计算播放器的动态大小时使用该值。值应该代表一个比例 - 用冒号分隔的两个数字（例如"16:9"或"4:3"）
+			        fluid: true, // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
+			        sources: [{
+			          type: "",
+			          src: ''//url地址          
+			        }],
+			        poster: "", //你的封面地址
+			        // width: document.documentElement.clientWidth,
+			        notSupportedMessage: '此视频暂无法播放，请稍后再试', //允许覆盖Video.js无法播放媒体源时显示的默认信息。
+			        controlBar: {
+			          timeDivider: true,
+			          durationDisplay: true,
+			          remainingTimeDisplay: false,
+			          fullscreenToggle: true  //全屏按钮
+					}
+			}
+		
 		}
 	},
 	components: {
-		 NoticeApp
+		 downloadApp
 	},
-	mounted() {
-		this.initVideo();
+	mounted() {		
 		this.$ajax.get('info/video/' + this.$route.query.id).then((response) => { //视频列表
-		    this.video = response.data.data
-			console.log(response.data.data);
+		    this.videoCon = response.data.data
+			this.videoDetail = response.data.data.video
+			this.videoUser = response.data.data.user			
+			var viurl = this.videoDetail.video_url				
+			this.playerOptions['sources'][0]['src'] = viurl;			
 		});	
 	},
 	methods: {
 	    onClickLeft() {
 	      window.history.go(-1);
 	    },
-		initVideo() {
-			//初始化视频方法
-		    let myPlayer = this.$video(myVideo, {
-		        //确定播放器是否具有用户可以与之交互的控件。没有控件，启动视频播放的唯一方法是使用autoplay属性或通过Player API。
-		        controls: true,
-		        //自动播放属性,muted:静音播放
-		        autoplay: "muted",
-		        //建议浏览器是否应在<video>加载元素后立即开始下载视频数据。
-		        preload: "auto",
-		        //设置视频播放器的显示宽度（以像素为单位）
-		        width: "800px",
-		        //设置视频播放器的显示高度（以像素为单位）
-		        height: "400px"
-		    });
-		},
 		//弹出框
 		showPopup() {
 		    this.show = true;
