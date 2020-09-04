@@ -8,22 +8,18 @@
 		<div class="videoIofn bg-ff wrapper-sm">
 			<div class="videoTitle">{{videoDetail.title}}</div>
 			<div class="videoOperating">
-				<div class="fr"><van-button size="small" color="#f24646">+关注</van-button></div>
+				<div class="fr"><van-button size="small" color="#f24646" @click="showPopup">+关注</van-button></div>
 				<div class="fl"><van-image round width="32px" height="32px" :src="videoUser.user_image" class="v-middle" /><span class="m-l-sm v-middle">{{videoUser.user_name}}</span></div>
 			</div>
 		</div>
 		
 		<div class="comment bg-ff wrapper-sm m-t-sm">
-			<h3>评论 ( 32435 )</h3>
-			<div class="commentList">
-				<div class="commentAvatar"><van-image round width="18px" height="18px" src="https://img.yzcdn.cn/vant/cat.jpeg" class="v-middle" /><span class="m-l-xs v-middle size12">用户名</span></div>
-				<p class="commentCon">评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容</p>
-				<p class="size12 text-gray">04-09</p>
-			</div>
-			<div class="commentList">
-				<div class="commentAvatar"><van-image round width="18px" height="18px" src="https://img.yzcdn.cn/vant/cat.jpeg" class="v-middle" /><span class="m-l-xs v-middle size12">用户名</span></div>
-				<p class="commentCon">评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容评论内容</p>
-				<p class="size12 text-gray">04-09</p>
+			<h3>评论 ( {{videoComment.count}} )</h3>
+			<van-empty description="这里还没有人评论" id="noComment" />
+			<div class="commentList" v-for="videoCom of videoComment.data">
+				<div class="commentAvatar"><van-image round width="18px" height="18px" :src="videoCom.comment_user_image" class="v-middle" /><span class="m-l-xs v-middle size12">{{videoCom.comment_user_name}}</span></div>
+				<p class="commentCon">{{videoCom.com_content}}</p>
+				<p class="size12 text-gray">04-09{{videoCom.created_at}}</p>
 			</div>
 		</div>
 		
@@ -53,7 +49,7 @@ Vue.use(VideoPlayer)
 
 import downloadApp from '@/public/downloadApp' //弹出框APP下载
 import Vue from 'vue';
-import { NavBar, Field, Icon, GoodsAction, GoodsActionIcon, GoodsActionButton, Popup, Button } from 'vant';
+import { NavBar, Field, Icon, GoodsAction, GoodsActionIcon, GoodsActionButton, Popup, Button, Empty } from 'vant';
 Vue.use(NavBar);
 Vue.use(Field);
 Vue.use(Icon);
@@ -62,6 +58,7 @@ Vue.use(GoodsActionButton);
 Vue.use(GoodsActionIcon);
 Vue.use(Popup);
 Vue.use(Button);
+Vue.use(Empty);
 
 import { Image as VanImage } from 'vant';
 Vue.use(VanImage);
@@ -74,6 +71,8 @@ export default {
 			videoCon:[],
 			videoDetail:[],
 			videoUser:[],
+			comment:[],
+			videoComment:[],
 			downloadAppText:'享受更好的评论体验',
 			playerOptions : {
 			        playbackRates: [0.7, 1.0, 1.5, 2.0], //播放速度
@@ -112,6 +111,14 @@ export default {
 			var viurl = this.videoDetail.video_url				
 			this.playerOptions['sources'][0]['src'] = viurl;			
 		});	
+		this.$ajax.get('info/comment' + '?info_id=' + this.$route.query.id + '&info_type=1').then((response) => { //视频评论
+		    this.videoComment = response.data.data
+			var noComment = response.data.data.count
+			if(noComment == 0){
+				var noc = document.getElementById("noComment");
+				noc.style.display = 'flex';
+			}
+		});	
 	},
 	methods: {
 	    onClickLeft() {
@@ -140,4 +147,5 @@ export default {
 		.commentCon { padding: 5px 0; line-height: 1.4; font-size: 12px;}
 	}
 }
+#noComment { display: none;}
 </style>

@@ -1,5 +1,5 @@
 <template>
-	<div class="NoticeBarWrap">
+	<div class="NoticeBarWrap" id="NoticeBarWrap">
 		<van-notice-bar color="#fff" background="#f24646" mode="closeable">
 		  <div class="NoticeBar">
 			  <span class="fr m-l-md">

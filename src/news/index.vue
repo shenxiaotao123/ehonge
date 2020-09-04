@@ -1,10 +1,9 @@
 <template>
-<div>
+<div style="padding-bottom: 60px;">
 	<van-swipe class="my-swipe" :autoplay="3000" indicator-color="white">
-	  <van-swipe-item>1</van-swipe-item>
-	  <van-swipe-item>2</van-swipe-item>
-	  <van-swipe-item>3</van-swipe-item>
-	  <van-swipe-item>4</van-swipe-item>
+	  <van-swipe-item v-for="swipe of columnSwipe.slice(0,4)">
+		  <img :src="swipe.pic_url" width="100%" class="swiper-slide img" alt="" />
+	  </van-swipe-item>
 	</van-swipe>
 	<div class="column m-t-sm" v-for="col of column">
 		<div class="column-d">
@@ -19,8 +18,14 @@
 		<div class="column-x m-t-sm">
 			<van-row gutter="10">
 			  <van-col span="8" v-for="inf of col.infos.slice(0,3)" class="text-c">
-				  <van-image height="80" class="col-d-img radius-xs clear" :src="inf.cover_img" @click="$router.push({path:'/colDetailsText',query:{cid:col.id,id:inf.id}})" />
-				  <p class="col-x-text" @click="$router.push({path:'/colDetailsText',query:{cid:col.id,id:inf.id}})">{{inf.title}}</p>
+				<div v-if="inf.column_type == '1'" @click="$router.push({path:'/colDetailsText',query:{cid:col.id,id:inf.id}})">
+				  <van-image height="80" class="col-d-img radius-xs clear" :src="inf.cover_img" />
+				  <p class="col-x-text">{{inf.title}}</p>
+				</div>
+				<div v-else-if="inf.column_type == '2'" @click="$router.push({path:'/colDetailsText',query:{cid:col.id,id:inf.id}})">
+				  <van-image height="80" class="col-d-img radius-xs clear" :src="inf.cover_img" />
+				  <p class="col-x-text">{{inf.title}}</p>
+				</div>
 			  </van-col>
 			</van-row>
 		</div>
@@ -55,21 +60,27 @@ export default {
 			column:[
 				{
 					infos:[],
-					columnInfos:[],
+					columnInfos:[]
+					
 				}
-			]
+			],
+			columnSwipe:[]
 		}
 	},
 	mounted() {
 		this.$ajax.get('info/column').then((response) => { //专栏列表
 		    this.column = response.data.data.data
 		});	
+		this.$ajax.post('ads/column').then((response) => { //专栏轮播图
+		    this.columnSwipe = response.data.data.data
+		});	
 	}
 }
 </script>
 
 <style lang="less">
-.my-swipe .van-swipe-item { color: #fff; font-size: 20px; line-height: 150px; text-align: center; background-color: #f24646;}	
+.van-swipe { height: 180px; max-width: 100%; max-height: 100%;}
+// .my-swipe .van-swipe-item { color: #fff; font-size: 20px; line-height: 150px; text-align: center; background-color: #f24646;}	
 .column { padding: 10px; background-color: #fff;
 	&:after { content:"."; display:block; height:0; clear:both; visibility:hidden;}
 	.column-d { position: relative; display: flex;
