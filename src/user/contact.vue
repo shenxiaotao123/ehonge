@@ -11,13 +11,13 @@
         公司地址
       </p>
 	  <div class="mar-b-10 m-t-xxs">
-	    <van-cell value="浙江省丽水市莲都区厦河路107号二楼"/>
+	    <van-cell value="丽水市莲都区城北街368号MT新嬉里816室"/>
 	  </div>
       <div >
         <p style="line-height: 8vw">
 
         </p>
-        <img src="@/assets/imges/user/contactUs.png" width="100%"/>
+        <img src="@/assets/imges/user/contactUs.jpg" width="100%"/>
       </div>
 
     </div>
